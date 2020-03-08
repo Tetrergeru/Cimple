@@ -42,6 +42,8 @@ namespace Cimple
             "|", "&", "||", "&&"
         };        
 
+        public static HashSet<string> Delims = new HashSet<string> { ";", "," };
+        
         public static TokenType ParseTokenType(string token)
         {
             if (token.Length == 0)
@@ -50,22 +52,27 @@ namespace Cimple
             if (char.IsDigit(token[0]))
                 return TokenType.Const;
             
+            if (token.Length > 1 && token[0] == 'u' && token.Skip(1).All(char.IsDigit))
+                return TokenType.Type;
+            
             if (token.All(c => char.IsLetter(c) || char.IsDigit(c) || c == '_'))
                 return TokenType.Name;
             
-            if (token.Length > 1 && token[0] == 'u' && token.Skip(1).All(char.IsDigit))
-                return TokenType.Type;
-
             if (Parenthesis.Contains(token))
                 return TokenType.Bracket;
 
             if (Operators.Contains(token))
                 return TokenType.Operator;
 
+            if (Delims.Contains(token))
+                return TokenType.Delim;
+            
             return token switch
             {
                 "for" => TokenType.For,
+                "while" => TokenType.While,
                 "if" => TokenType.If,
+                "else" => TokenType.Else,
                 _ => TokenType.None
             };
         }

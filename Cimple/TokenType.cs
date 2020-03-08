@@ -8,8 +8,11 @@
         Const,
         Bracket,
         For,
+        While,
         If,
+        Else,
         Name,
-        Operator
+        Operator,
+        Delim
     }
 }
