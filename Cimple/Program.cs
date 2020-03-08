@@ -1,12 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Cimple
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static List<string> words = new List<string>
         {
-            Console.WriteLine("Hello World!");
+            "==", "<=", ">=","+=", ">>", "<<"
+        };
+
+        public static void Main()
+        {
+            var s = new StateMachine(new Parser(words).Parse);
+            
+            Console.WriteLine(string.Join(", ", s.ParseTokens(@"> >> += ").Select(s => $"{s}")));
         }
     }
 }
