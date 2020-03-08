@@ -73,6 +73,7 @@ u64 foo()
    (x = y);
    (y = z);
 }";
+
             var program = s.ParseFile(code, "main.c");
             //Console.WriteLine(string.Join(", ", program.Select(t => t.Text)));
             
