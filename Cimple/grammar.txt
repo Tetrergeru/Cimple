@@ -1,7 +1,31 @@
-<function> -> <Type> <Name> ( ) { <code-block> } ;;
+<program-list> -> <function> <program-list> 
+           | ;;
 
-<code-block> -> <operator> <code-block> |  ;;
+<function> -> <Type> <Name> ( <variable-list> ) { <code-list> } ;;
 
-<operator> -> <expression> ; ;;
+<variable-list> -> <Type> <Name> , <variable-list>
+                 | <Type> <Name> 
+				 | ;;
 
-<expression> -> ( <expression> <Operator> <expression> ) | ( <Operator> <expression> ) | <Name>  ;;
+<code-list> -> <operator> <code-list> 
+              |  ;;
+
+<operator> -> <conditional-operator> 
+            | <decalaration-operator> 
+			| <while-cycle>
+			| <expression> ; ;;
+
+<conditional-operator> -> if ( <expression> ) { <code-list> } else { <code-list> } ;;
+
+<decalaration-operator> -> <Type> <Name> ;;
+
+<while-cycle> -> while ( <expression> ) { <code-list> } ;;
+
+<expression> -> ( <expression> <Operator> <expression> ) 
+              | ( <Operator> <expression> ) 
+			  | <Name> ( <argument-list> )
+			  | <Name>  ;;
+			  
+<argument-list> -> <Name> , <argument-list>
+                 | <Name>
+				 | ;;

@@ -23,6 +23,13 @@ namespace Cimple
                 .Where(kv => kv.Value[1].Count == 0 && kv.Value[0][1] == kv.Key)
                 .Select(kv => kv.Key)
                 .ToList();
+
+            _lists = grammar
+                .Where(kv => kv.Key.EndsWith("-list>"))
+                .Select(kv => kv.Key)
+                .ToList();
+            
+            //_lists = new List<string>{"<program-list>"};
             
             Console.WriteLine(string.Join(", ", _lists));
         }
@@ -39,8 +46,9 @@ namespace Cimple
                 var next = program[$"{l}_0"];
                 while (next is Dictionary<string, object> d && d.ContainsKey($"{l}_0"))
                 {
-                    program[$"{l}_{i}"] = next;
                     next = d[$"{l}_0"];
+                    d.Remove($"{l}_0");
+                    program[$"{l}_{i}"] = next;
                     i++;
                 }
                 program.Remove($"{l}_{i - 1}");
@@ -52,6 +60,7 @@ namespace Cimple
 
         private (string, object, int) Match(List<Token> tokens, int start, string rool)
         {
+            //Console.WriteLine(rool);
             if (rool.Length > 2 && rool[0] == '<' && rool.Last() == '>')
             {
                 var text = rool.Substring(1, rool.Length - 2);

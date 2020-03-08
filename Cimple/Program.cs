@@ -44,7 +44,7 @@ namespace Cimple
             var text = File.ReadAllText(fname);
             var rs = text
                 .Split(";;")
-                .Select(r => r.Split(new []{" ", "\n", "\r"}, StringSplitOptions.RemoveEmptyEntries))
+                .Select(r => r.Split(new []{" ", "\n", "\r", "\t"}, StringSplitOptions.RemoveEmptyEntries))
                 .Where( x => x.Length > 0)
                 .ToList();
 
@@ -56,8 +56,8 @@ namespace Cimple
                     .Select(r => r.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList())
                     .ToList());
             
-            Console.WriteLine(string.Join("\n", gr.Select(kv => 
-                $"{kv.Key} => {string.Join(" | ", kv.Value.Select(x => string.Join(" ", x)))}")));
+            //Console.WriteLine(string.Join("\n", gr.Select(kv => 
+            //    $"{kv.Key} => {string.Join(" | ", kv.Value.Select(x => string.Join(" ", x)))}")));
             
             return new Grammar(gr, rs.First()[0]);
         }
@@ -74,7 +74,7 @@ u64 foo()
    (y = z);
 }";
 
-            var program = s.ParseFile(code, "main.c");
+            var program = s.ParseFile(File.ReadAllText("program_1.c"), "main.c");
             //Console.WriteLine(string.Join(", ", program.Select(t => t.Text)));
             
             var parsed = g.Parse(program);
