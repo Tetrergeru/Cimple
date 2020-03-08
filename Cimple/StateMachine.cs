@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Cimple
@@ -14,15 +15,21 @@ namespace Cimple
         public StateMachine(Func<(char, int), (int, bool)> program)
             => _program = program;
 
-        public IEnumerable<string> ParseTokens(string program)
+        public IEnumerable<Token> ParseFile(string program, string fname = "")
+            => program
+                .Split("\n")
+                .SelectMany((line, lineNumber) => ParseLine(line, fname, lineNumber));
+
+        public IEnumerable<Token> ParseLine(string line, string fname, int lineNumber)
         {
             var state = 0;
+            var charNumber = 0;
             var result = new StringBuilder();
-            foreach (var ch in program)
+            foreach (var ch in line)
             {
                 if ((char.IsWhiteSpace(ch) || ch == '\n') && result.Length != 0)
                 {
-                    yield return result.ToString();
+                    yield return new Token(result.ToString(), fname, lineNumber, charNumber);
                     result = new StringBuilder();
                 }
 
@@ -37,14 +44,16 @@ namespace Cimple
                 
                 if (end && result.Length != 0)
                 {
-                    yield return result.ToString();
+                    yield return new Token(result.ToString(), fname, lineNumber, charNumber);
                     result = new StringBuilder();
                 }
                 result.Append(ch);
+                
+                charNumber++;
             }
 
             if (result.Length != 0)
-                yield return result.ToString();
+                yield return new Token(result.ToString(), fname, lineNumber, charNumber);
         }
     }
 }
