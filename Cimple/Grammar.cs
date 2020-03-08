@@ -41,17 +41,20 @@ namespace Cimple
             {
                 if (!program.ContainsKey($"{l}_0")) 
                     continue;
-                
-                var i = 1;
-                var next = program[$"{l}_0"];
+
+                var list = new List<object>();
+                var next = (object)program;
                 while (next is Dictionary<string, object> d && d.ContainsKey($"{l}_0"))
                 {
                     next = d[$"{l}_0"];
                     d.Remove($"{l}_0");
-                    program[$"{l}_{i}"] = next;
-                    i++;
+                    if (((Dictionary<string, object>) next).Count > 0)
+                        list.Add(next);
                 }
-                program.Remove($"{l}_{i - 1}");
+                program[$"{l}_0"] = list;
+                foreach (var e in list)
+                    if (e is Dictionary<string, object> d)
+                        UnwrapLists(d);
             }
             foreach (var kv in program)
                 if (kv.Value is Dictionary<string, object> d)

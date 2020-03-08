@@ -1,17 +1,25 @@
+u1 test()
+{
+	(f(x) = (+a));
+}
+
 u46 main()
 {
+	u64 x;
 	if (a)
 	{
 		printf(zzz);
+		u16 fff;
 	}
 	else
 	{
-		z();
+		(a = b);
 	}
 }
 
 u64 foo(u32 bar)
 {
+	while(true){}
 	bar();
 	a();
 	b();

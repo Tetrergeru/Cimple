@@ -1,31 +1,38 @@
 <program-list> -> <function> <program-list> 
            | ;;
 
-<function> -> <Type> <Name> ( <variable-list> ) { <code-list> } ;;
+<function> -> <Type> <Name> ( <variable-list> ) <code-block> ;;
 
 <variable-list> -> <Type> <Name> , <variable-list>
                  | <Type> <Name> 
 				 | ;;
 
+<code-block> -> { <code-list> } ;;
+
 <code-list> -> <operator> <code-list> 
               |  ;;
 
 <operator> -> <conditional-operator> 
-            | <decalaration-operator> 
+            | <declaration-operator> 
 			| <while-cycle>
 			| <expression> ; ;;
 
-<conditional-operator> -> if ( <expression> ) { <code-list> } else { <code-list> } ;;
+<conditional-operator> -> if ( <expression> ) <code-block> else <code-block> ;;
 
-<decalaration-operator> -> <Type> <Name> ;;
+<declaration-operator> -> <Type> <Name> ; ;;
 
-<while-cycle> -> while ( <expression> ) { <code-list> } ;;
+<while-cycle> -> while ( <expression> ) <code-block> ;;
 
-<expression> -> ( <expression> <Operator> <expression> ) 
-              | ( <Operator> <expression> ) 
-			  | <Name> ( <argument-list> )
-			  | <Name>  ;;
+<expression> -> <bin-expression> 
+              | <un-expression>
+			  | <call-expression>
+			  | <name-expression> ;;
+
+<bin-expression> -> ( <expression> <Operator> <expression> ) ;;
+<un-expression> -> ( <Operator> <expression> ) ;;
+<call-expression> -> <Name> ( <argument-list> ) ;;
+<name-expression> -> <Name> ;;
 			  
-<argument-list> -> <Name> , <argument-list>
-                 | <Name>
+<argument-list> -> <expression> , <argument-list>
+                 | <expression>
 				 | ;;
