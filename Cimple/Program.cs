@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Cimple
@@ -38,38 +39,43 @@ namespace Cimple
             }
         }
 
+        public static Grammar ReadGrammar(string fname)
+        {
+            var text = File.ReadAllText(fname);
+            var rs = text
+                .Split(";;")
+                .Select(r => r.Split(new []{" ", "\n", "\r"}, StringSplitOptions.RemoveEmptyEntries))
+                .Where( x => x.Length > 0)
+                .ToList();
+
+            var gr = rs.ToDictionary(
+                r => r[0],
+                r => string
+                    .Join(' ', r.Skip(2))
+                    .Split("|")
+                    .Select(r => r.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList())
+                    .ToList());
+            
+            Console.WriteLine(string.Join("\n", gr.Select(kv => 
+                $"{kv.Key} => {string.Join(" | ", kv.Value.Select(x => string.Join(" ", x)))}")));
+            
+            return new Grammar(gr, rs.First()[0]);
+        }
+
         public static void Main()
         {
             var s = new StateMachine(new Parser(words).Parse);
-            var gr1 =
-                new Dictionary<string, List<List<string>>>
-                {
-                    ["<function>"] = new List<List<string>>
-                    {
-                        new List<string> {"<Type>", "Name", "(", ")", "{", "<code block>", "}"}
-                    },
-                    ["<code block>"] = new List<List<string>>
-                    {
-                        new List<string> {"<expression>", ";"}
-                    },
-                    ["<expression>"] = new List<List<string>>
-                    {
-                        new List<string> {"<Name>"},
-                        new List<string> {"(", "<expression>", "<Operator>", "<expression>", ")"}
-                    },
-                };
-            var g = new Grammar( new Dictionary<string, List<List<string>>>
-                {
-                    ["<function>"] = new List<List<string>>
-                    {
-                        new List<string> {"<Name>", "<function>"},
-                        new List<string> {}
-                    },
-                },
-                "<function>");
+            var g = ReadGrammar("grammar.txt");
             
-            var code = @"u64 foo() {(x = y);}";
-            var program = s.ParseFile("a a a a a", "main.c");
+            var code = @"
+u64 foo()
+{
+   (x = y);
+   (y = z);
+}";
+            var program = s.ParseFile(code, "main.c");
+            //Console.WriteLine(string.Join(", ", program.Select(t => t.Text)));
+            
             var parsed = g.Parse(program);
             Print(parsed);
         }

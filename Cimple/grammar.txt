@@ -1,0 +1,7 @@
+<function> -> <Type> <Name> ( ) { <code-block> } ;;
+
+<code-block> -> <operator> <code-block> |  ;;
+
+<operator> -> <expression> ; ;;
+
+<expression> -> ( <expression> <Operator> <expression> ) | ( <Operator> <expression> ) | <Name>  ;;

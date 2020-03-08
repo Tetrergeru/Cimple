@@ -20,7 +20,7 @@ namespace Cimple
 
         public (string, object, int) Match(List<Token> tokens, int start, string rool)
         {
-            //Console.WriteLine(rool);
+            Console.WriteLine(rool);
             if (rool.Length > 2 && rool[0] == '<' && rool.Last() == '>')
             {
                 var text = rool.Substring(1, rool.Length - 2);
@@ -44,6 +44,7 @@ namespace Cimple
                         {
                             if (key == null)
                                 continue;
+                            
                             var i = 0;
                             while (result.ContainsKey($"{key}_{i}"))
                                 i++;
@@ -72,9 +73,8 @@ namespace Cimple
         public Dictionary<string, object> Parse(IEnumerable<Token> program)
         {
             var (key, value, i) = Match(program.ToList(), 0, _start);
-            //Console.WriteLine($"{i}");
-            return new Dictionary<string, object> { [key] = value };
-            return null;
+            Console.WriteLine(key);
+            return new Dictionary<string, object> { [$"{key}_0"] = value };
         }
     }
 }
