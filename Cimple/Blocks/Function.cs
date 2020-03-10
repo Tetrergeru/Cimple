@@ -45,6 +45,48 @@ namespace Cimple.Blocks
             var body = $"\n{string.Join("\n", Operations)} \n}}";
             return header + vars + body;
         }
+
+        private int _offset;
+        
+        public int GetOffset(string name)
+        {
+            var find = Operands.FindIndex(si => si.Item1 == name);
+            if (find!= -1)
+                return _offset - (find + 1) * 8;
             
+            find = Variables.FindIndex(si => si.Item1 == name);
+            if (find != -1)
+                return _offset - (Operands.Count + find + 1) * 8;
+            
+            throw new Exception("name not found");
+        }
+
+        public IEnumerable<string> Translate()
+        {
+            //label
+            yield return $"{Name}:";
+            //push arguments to stack
+            for (var i = 0; i < Operands.Count; i++)
+                yield return $"push {Program.RegParams[i]}";
+            //allocate space for local variables
+            yield return $"sub rsp, {Variables.Count * 8}";
+            _offset = (Operands.Count + Variables.Count) * 8;
+
+            foreach (var op in Operations.SelectMany(op => op.Translate()))
+                yield return op;
+
+            yield return ".return:";
+            //remove arguments and local variables from stack
+            yield return $"add rsp, {(Operands.Count + Variables.Count) * 8}";
+            //return
+            if (Name == "main")
+            {
+                yield return "xor rcx, rcx";
+                yield return "call ExitProcess";
+            }
+            else
+                yield return "ret";
+            yield return "";
+        }
     }
 }

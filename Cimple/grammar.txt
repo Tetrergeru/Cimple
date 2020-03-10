@@ -15,6 +15,7 @@
 <operator> -> <conditional-operator> 
             | <declaration-operator> 
 			| <while-cycle>
+			| <return-operator>
 			| <expression> ; ;;
 
 <conditional-operator> -> if ( <expression> ) <code-block> else <code-block> ;;
@@ -23,14 +24,18 @@
 
 <while-cycle> -> while ( <expression> ) <code-block> ;;
 
+<return-operator> -> return <expression> ; ;;
+
 <expression> -> <bin-expression> 
               | <un-expression>
 			  | <call-expression>
+			  | <const-expression>
 			  | <name-expression> ;;
 
 <bin-expression> -> ( <expression> <Operator> <expression> ) ;;
 <un-expression> -> ( <Operator> <expression> ) ;;
 <call-expression> -> <Name> ( <argument-list> ) ;;
+<const-expression> -> <Const> ;;
 <name-expression> -> <Name> ;;
 			  
 <argument-list> -> <expression> , <argument-list>

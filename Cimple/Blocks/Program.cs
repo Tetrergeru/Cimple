@@ -6,6 +6,8 @@ namespace Cimple.Blocks
 {
     public class Program
     {
+        public static readonly List<string> RegParams = new List<string> {"rcx", "rdx","rsi", "rdi", "r8", "r9"};
+        
         private Dictionary<string, Function> _funcs = new Dictionary<string, Function>();
         
         public Program(Dictionary<string, Function> funcs)
@@ -33,6 +35,23 @@ namespace Cimple.Blocks
         public override string ToString()
         {
             return string.Join("\n", _funcs.Values);
+        }
+
+        public IEnumerable<string> Translate()
+        {
+            yield return "extern ExitProcess";
+            yield return "extern printf";
+            yield return "";
+            yield return "section .text";
+            yield return "global Start";
+            yield return "Start: jmp main";
+            yield return "";
+
+            foreach (var s in _funcs.SelectMany(f => f.Value.Translate()))
+                yield return s;
+            
+            yield return "section .data";
+            yield return "fmt:    db \"%d\", 10, 0";
         }
     }
 }

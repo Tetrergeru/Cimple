@@ -90,15 +90,16 @@ namespace Cimple
             var s = new StateMachine(new Parser(words).Parse);
             var g = ReadGrammar("grammar.txt");
             
-            var program = s.ParseFile(File.ReadAllText("program_1.c"), "main.c");
+            var program = s.ParseFile(File.ReadAllText("program_2.c"), "main.c");
             
             var parsed = g.Parse(program);
             
-            var p = new Blocks.Program(parsed);
-            
-            Console.WriteLine(p);
-            
             //Println(parsed);
+            
+            var p = new Blocks.Program(parsed);
+            File.WriteAllLines("program_2.asm", p.Translate());
+            //Console.WriteLine(string.Join("\n",));
+            //Console.WriteLine(p);
         }
     }
 }

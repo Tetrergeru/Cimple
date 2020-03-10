@@ -26,10 +26,20 @@ namespace Cimple.Blocks
                 .Select( o => (Dictionary<string, object>) o)
                 .Select(o => Expression.ParseExpression(context, (Dictionary<string, object>)o["<expression>_0"]))
                 .ToList();
+            
+            if (Function == "printf")
+                Operands.Insert(0, new ConstExpression(context, "fmt"));
         }
         public override string ToString()
         {
             return $"{Function}({string.Join(", ", Operands)})";
+        }
+
+        public override IEnumerable<string> Translate()
+        {
+            for (var i = 0; i < Operands.Count; i++)
+                yield return $"mov {Program.RegParams[i]}, {Operands[i]}";
+            yield return $"call {Function}";
         }
     }
 }

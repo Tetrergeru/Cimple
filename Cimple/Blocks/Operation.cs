@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Net.Mime;
@@ -32,11 +33,23 @@ namespace Cimple.Blocks
                     result.Add(new IfOperator(Context, (Dictionary<string, object>)o["<conditional-operator>_0"]));
                 else if (o.ContainsKey("<while-cycle>_0"))
                     result.Add(new WhileOperator(Context, (Dictionary<string, object>)o["<while-cycle>_0"]));
+                else if (o.ContainsKey("<return-operator>_0"))
+                    result.Add(new ReturnOperator(Context, (Dictionary<string, object>)o["<return-operator>_0"]));
                 else if (o.ContainsKey("<expression>_0"))
                     result.Add(Expression.ParseExpression(Context, (Dictionary<string, object>)o["<expression>_0"]));
             }
 
             return result;
+        }
+
+        public virtual IEnumerable<string> Translate()
+        {
+            return this switch
+            {
+                Expression e => e.Translate(),
+                ReturnOperator ro => ro.Translate(),
+                _ => throw new Exception()
+            };
         }
     }
 }

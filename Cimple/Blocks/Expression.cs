@@ -20,8 +20,19 @@ namespace Cimple.Blocks
                 return new CallExpression(context, (Dictionary<string, object>)data["<call-expression>_0"]);
             if (data.ContainsKey("<name-expression>_0"))
                 return new VarExpression(context, (Dictionary<string, object>)data["<name-expression>_0"]);
+            if (data.ContainsKey("<const-expression>_0"))
+                return new ConstExpression(context, (Dictionary<string, object>)data["<const-expression>_0"]);
             
             throw new Exception("There is no such expression");
+        }
+
+        public override IEnumerable<string> Translate()
+        {
+            return this switch
+            {
+                BinExpression b => b.Translate(),
+                _ => throw new Exception()
+            };
         }
     }
 }

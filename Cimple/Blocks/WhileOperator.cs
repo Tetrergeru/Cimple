@@ -2,7 +2,7 @@
 
 namespace Cimple.Blocks
 {
-    public class WhileOperator : Blocks.Operation
+    public class WhileOperator : Operation
     {
         public readonly Expression Condition;
 

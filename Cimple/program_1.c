@@ -15,6 +15,7 @@ u46 main()
 	{
 		(a = b);
 	}
+	return 0;
 }
 
 u64 foo(u32 bar)
