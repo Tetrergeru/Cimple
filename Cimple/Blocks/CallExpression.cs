@@ -27,7 +27,7 @@ namespace Cimple.Blocks
                 .Select(o => Expression.ParseExpression(context, (Dictionary<string, object>)o["<expression>_0"]))
                 .ToList();
             
-            if (Function == "printf")
+            if (Function == "printd")
                 Operands.Insert(0, new ConstExpression(context, "fmt"));
         }
         public override string ToString()
@@ -37,9 +37,22 @@ namespace Cimple.Blocks
 
         public override IEnumerable<string> Translate()
         {
+            if (Function == "printf" || Function == "printd")
+            {
+                yield return "sub rsp, 40";
+                Context.Push(40);
+            }
+
             for (var i = 0; i < Operands.Count; i++)
                 yield return $"mov {Program.RegParams[i]}, {Operands[i]}";
-            yield return $"call {Function}";
+            var fun = Function == "printd" ? "printf" : Function;
+            yield return $"call {fun}";
+            
+            if (Function == "printf" || Function == "printd")
+            {
+                yield return "add rsp, 40";
+                Context.Pop(40);
+            }
         }
     }
 }

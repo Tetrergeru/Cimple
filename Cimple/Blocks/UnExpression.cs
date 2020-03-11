@@ -29,5 +29,27 @@ namespace Cimple.Blocks
         {
             return $"({Operation} {Operand})";
         }
+
+        public override IEnumerable<string> Translate()
+        {
+            var vbl = ((VarExpression) Operand).Variable;
+            var off = Context.GetOffset(vbl);
+            switch (Operation)
+            {
+                case "&":
+                {
+                    yield return "mov rax, rsp";
+                    yield return $"add rax, {off}";
+                    break;
+                }
+                case "*":
+                {
+                    yield return $"mov rbx, [rsp + {off}]";
+                    break;
+                }
+                default:
+                    throw new Exception("Dunno such operations");
+            }
+        }
     }
 }

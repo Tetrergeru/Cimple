@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace Cimple
 {
     public class Program
     {
-        public static List<string> words = new List<string>
-        {
-            "==", "<=", ">=","+=", ">>", "<<", "||", "&&", "!=",
-        };
-
+        public static List<string> words = new List<string> {
+            "+=", "-=", "*=", "/=",
+            ">>", "<<", "!=", "==", "<=", ">=",
+            "||", "&&"
+        };  
         public static void Print(object data, int tab)
         {
             switch (data)
@@ -92,12 +93,19 @@ namespace Cimple
             
             var program = s.ParseFile(File.ReadAllText("program_2.c"), "main.c");
             
+            //Console.WriteLine(string.Join(", ", program.Select(s => s.Text)));
+            
             var parsed = g.Parse(program);
             
             //Println(parsed);
             
             var p = new Blocks.Program(parsed);
             File.WriteAllLines("program_2.asm", p.Translate());
+            
+            System.Diagnostics.Process.Start("CMD.exe","/C nasm -f win64 program_2.asm");
+            Thread.Sleep(100);
+            System.Diagnostics.Process.Start("CMD.exe","/C golink /console program_2.obj kernel32.dll MSVCRT.dll");
+
             //Console.WriteLine(string.Join("\n",));
             //Console.WriteLine(p);
         }

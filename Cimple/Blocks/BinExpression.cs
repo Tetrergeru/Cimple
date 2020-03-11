@@ -39,7 +39,12 @@ namespace Cimple.Blocks
         {
             ["="] = "mov",
             ["+="] = "add",
-            ["-="] = "dec",
+            ["-="] = "sub",
+            ["=="] = "cmp",
+            ["<"] = "cmp",
+            ["<="] = "cmp",
+            [">"] = "cmp",
+            [">="] = "cmp",
         };
 
         public override IEnumerable<string> Translate()
@@ -48,8 +53,9 @@ namespace Cimple.Blocks
             result.AddRange(Right switch
             {
                 VarExpression ve => new[] {$"mov rax, {ve}"},
-                ConstExpression ce => new[] {$"mov rax, {int.Parse(ce.Const)}"},
+                ConstExpression ce => new[] {$"mov rax, {ce}"},
                 CallExpression ce => ce.Translate(),
+                UnExpression ue => ue.Translate(),
                 _ => throw new Exception($"{Right.GetType()}")
             });
 
@@ -57,7 +63,19 @@ namespace Cimple.Blocks
                 ? OpToInstr[Operation]
                 : throw new Exception();
 
-            result.Add($"{instruction} {Left}, rax");
+            string left;
+            switch (Left)
+            {
+                case UnExpression ue:
+                    left = "[rbx]";
+                    result.AddRange(ue.Translate());
+                    break;
+                default:
+                    left = $"{Left}";
+                    break;
+            }
+
+            result.Add($"{instruction} {left}, rax");
 
             return result;
         }

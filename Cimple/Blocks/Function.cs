@@ -17,7 +17,7 @@ namespace Cimple.Blocks
 
         public readonly List<Operation> Operations = new List<Operation>();
 
-        public readonly List<(string, int)> Variables = new List<(string, int)>();
+        public readonly List<(string, int)>Variables = new List<(string, int)>();
 
         public Function(Program context, Dictionary<string, object> contents)
         {
@@ -47,7 +47,17 @@ namespace Cimple.Blocks
         }
 
         private int _offset;
+
+        public void Push(int bytes)
+        {
+            _offset += bytes;
+        }
         
+        public void Pop(int bytes)
+        {
+            _offset -= bytes;
+        }
+
         public int GetOffset(string name)
         {
             var find = Operands.FindIndex(si => si.Item1 == name);
@@ -56,9 +66,16 @@ namespace Cimple.Blocks
             
             find = Variables.FindIndex(si => si.Item1 == name);
             if (find != -1)
-                return _offset - (Operands.Count + find + 1) * 8;
+                return  _offset - (Operands.Count + find + 1) * 8;
             
-            throw new Exception("name not found");
+            throw new Exception($"name not found: [{name}]");
+        }
+
+        private int _label = 0;
+        
+        public int NextLabel()
+        {
+            return _label++;
         }
 
         public IEnumerable<string> Translate()
