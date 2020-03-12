@@ -6,6 +6,8 @@ namespace Cimple.Blocks
 {
     public class Expression : Operation
     {
+        public string result;
+        
         public Expression(Function context) : base(context)
         {
         }
@@ -26,13 +28,26 @@ namespace Cimple.Blocks
             throw new Exception("There is no such expression");
         }
 
-        public override IEnumerable<string> Translate()
+        public new IEnumerable<string> Translate()
         {
-            return this switch
-            {
-                BinExpression b => b.Translate(),
-                _ => throw new Exception()
-            };
+            var translator = new Translator();
+            var code = translator.Translate(this).ToList();
+            code = Translator.Inline(code);
+            code = translator.PutRegiters(code);
+            foreach (var reg in translator.usedRegs)
+                Context.UsedRegisters.Add(reg);
+            result = translator.result;
+            
+            foreach (var instr in code)
+                if (instr.instr != "call" && instr.left[0] == '[' && char.IsDigit(instr.right[0]))
+                    instr.right = "DWORD " + instr.right;
+
+            return code.Select(l => $"{l}");
+            //return this switch
+            //{
+            //    BinExpression b => b.Translate(),
+            //    _ => throw new Exception()
+            //};
         }
     }
 }

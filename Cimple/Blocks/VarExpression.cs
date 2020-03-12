@@ -23,7 +23,8 @@ namespace Cimple.Blocks
         
         public override string ToString()
         {
-            return $"[rsp + {Context.GetOffset(Variable)}]";
+            var offset = Context.GetOffset(Variable);
+            return offset == 0 ? "[rsp]" : $"[rsp + {offset}]";
         }
     }
 }

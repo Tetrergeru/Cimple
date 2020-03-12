@@ -21,6 +21,9 @@
       <None Update="program_2.c">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="program_3.c">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

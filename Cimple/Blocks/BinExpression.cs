@@ -47,7 +47,7 @@ namespace Cimple.Blocks
             [">="] = "cmp",
         };
 
-        public override IEnumerable<string> Translate()
+        public new IEnumerable<string> Translate()
         {
             var result = new List<string>();
             result.AddRange(Right switch

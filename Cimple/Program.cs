@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Cimple.Blocks;
 
 namespace Cimple
 {
@@ -88,23 +90,32 @@ namespace Cimple
 
         public static void Main()
         {
+            var programName = "program_3";
+            
             var s = new StateMachine(new Parser(words).Parse);
             var g = ReadGrammar("grammar.txt");
             
-            var program = s.ParseFile(File.ReadAllText("program_2.c"), "main.c");
+            var program = s.ParseFile(File.ReadAllText($"{programName}.c"), "main.c");
             
             //Console.WriteLine(string.Join(", ", program.Select(s => s.Text)));
             
             var parsed = g.Parse(program);
             
             //Println(parsed);
+
+            Action<IEnumerable<AsmLine>> print = ie =>
+                Console.WriteLine(string.Join("\n", ie.Select((ai, i) => $"{i})\t{ai.instr}\t{ai.left}\t{ai.right}")));
             
             var p = new Blocks.Program(parsed);
-            File.WriteAllLines("program_2.asm", p.Translate());
+
+
+            File.WriteAllLines($"{programName}.asm", p.Translate());
             
-            System.Diagnostics.Process.Start("CMD.exe","/C nasm -f win64 program_2.asm");
+            System.Diagnostics.Process.Start("CMD.exe",$"/C nasm -f win64 {programName}.asm");
             Thread.Sleep(100);
-            System.Diagnostics.Process.Start("CMD.exe","/C golink /console program_2.obj kernel32.dll MSVCRT.dll");
+            System.Diagnostics.Process.Start("CMD.exe",$"/C golink /console {programName}.obj kernel32.dll MSVCRT.dll");
+            Thread.Sleep(100);
+            System.Diagnostics.Process.Start("CMD.exe",$"/C {programName}");
 
             //Console.WriteLine(string.Join("\n",));
             //Console.WriteLine(p);

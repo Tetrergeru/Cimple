@@ -6,9 +6,9 @@ namespace Cimple.Blocks
 {
     public class Program
     {
-        public static readonly List<string> RegParams = new List<string> {"rcx", "rdx","rsi", "rdi", "r8", "r9"};
+        public static readonly List<string> RegParams = new List<string> {"rcx", "rdx", "r8", "r9"};
         
-        private Dictionary<string, Function> _funcs = new Dictionary<string, Function>();
+        public Dictionary<string, Function> _funcs = new Dictionary<string, Function>();
         
         public Program(Dictionary<string, Function> funcs)
         {

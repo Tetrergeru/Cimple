@@ -35,7 +35,7 @@ namespace Cimple.Blocks
             return $"{Function}({string.Join(", ", Operands)})";
         }
 
-        public override IEnumerable<string> Translate()
+        public new IEnumerable<string> Translate()
         {
             if (Function == "printf" || Function == "printd")
             {

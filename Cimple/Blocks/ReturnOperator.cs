@@ -27,7 +27,10 @@ namespace Cimple.Blocks
 
         public override IEnumerable<string> Translate()
         {
-            yield return $"mov rax, {Value}";
+            foreach (var op in Value.Translate())
+                yield return op;
+            if (Value.result != "rax")
+                yield return $"mov rax, {Value.result}";
             yield return "jmp .return";
         }
     }

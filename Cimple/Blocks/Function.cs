@@ -19,6 +19,8 @@ namespace Cimple.Blocks
 
         public readonly List<(string, int)>Variables = new List<(string, int)>();
 
+        public readonly HashSet<string> UsedRegisters = new HashSet<string>();
+        
         public Function(Program context, Dictionary<string, object> contents)
         {
             Context = context;
@@ -78,6 +80,11 @@ namespace Cimple.Blocks
             return _label++;
         }
 
+        public static HashSet<string> regToSave = new HashSet<string>
+        {
+            "rbx", "rdi", "rsi", "r12", "r13", "r14", "r15"
+        };
+        
         public IEnumerable<string> Translate()
         {
             //label
@@ -89,13 +96,30 @@ namespace Cimple.Blocks
             yield return $"sub rsp, {Variables.Count * 8}";
             _offset = (Operands.Count + Variables.Count) * 8;
 
+            var _ = Operations.SelectMany(op => op.Translate()).ToList();
+            
+            //save registers
+            foreach (var reg in UsedRegisters.OrderBy(x => x))
+                if (regToSave.Contains(reg))
+                {
+                    yield return $"push {reg}";
+                    Push(8);
+                }
+
             foreach (var op in Operations.SelectMany(op => op.Translate()))
                 yield return op;
 
+            //return
             yield return ".return:";
+            //load registers
+            foreach (var reg in UsedRegisters.OrderBy(x => x).Reverse())
+                if (regToSave.Contains(reg))
+                {
+                    yield return $"pop {reg}";
+                    Push(8);
+                }
             //remove arguments and local variables from stack
             yield return $"add rsp, {(Operands.Count + Variables.Count) * 8}";
-            //return
             if (Name == "main")
             {
                 yield return "xor rcx, rcx";

@@ -30,7 +30,7 @@ namespace Cimple.Blocks
             return $"({Operation} {Operand})";
         }
 
-        public override IEnumerable<string> Translate()
+        public new IEnumerable<string> Translate()
         {
             var vbl = ((VarExpression) Operand).Variable;
             var off = Context.GetOffset(vbl);
