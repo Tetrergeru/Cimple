@@ -93,7 +93,8 @@ namespace Cimple.Blocks
             for (var i = 0; i < Operands.Count; i++)
                 yield return $"push {Program.RegParams[i]}";
             //allocate space for local variables
-            yield return $"sub rsp, {Variables.Count * 8}";
+            if (Variables.Count > 0)
+                yield return $"sub rsp, {Variables.Count * 8}";
             _offset = (Operands.Count + Variables.Count) * 8;
 
             var _ = Operations.SelectMany(op => op.Translate()).ToList();
@@ -119,7 +120,8 @@ namespace Cimple.Blocks
                     Push(8);
                 }
             //remove arguments and local variables from stack
-            yield return $"add rsp, {(Operands.Count + Variables.Count) * 8}";
+            if (Operands.Count + Variables.Count > 0)
+                yield return $"add rsp, {(Operands.Count + Variables.Count) * 8}";
             if (Name == "main")
             {
                 yield return "xor rcx, rcx";

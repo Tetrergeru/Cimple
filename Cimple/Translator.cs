@@ -38,12 +38,24 @@ namespace Cimple
             "=", "+=", "-=",
         };
         
+        private static HashSet<string> Comparators = new HashSet<string>
+            {
+                "==", "<=", "<", ">",">=","!="
+            };
+        
         private static Dictionary<string, string> OpToInstr = new Dictionary<string, string>
         {
             ["="] = "mov",
             ["+"] = "add",
+            ["+="] = "add",
             ["-"] = "sub",
-            ["=="] = "cmp",
+            ["-="] = "sub",
+            ["=="] = "sete",
+            ["!="] = "setne",
+            ["<"] = "setl",
+            ["<="] = "setle",
+            [">"] = "setg",
+            [">="] = "setge",
         };
 
         public IEnumerable<AsmLine> TranslateAssign(BinExpression be)
@@ -81,8 +93,14 @@ namespace Cimple
             foreach (var op in Translate(be.Left))
                 yield return op;
             var leftResReg = _regUsed;
-            
-            yield return new AsmLine(OpToInstr[be.Operation], $"#{leftResReg}#", $"#{rightResReg}#");
+
+            if (Comparators.Contains(be.Operation))
+            {
+                yield return new AsmLine("cmp", $"#{leftResReg}#", $"#{rightResReg}#");
+                yield return new AsmLine(OpToInstr[be.Operation],NewReg(), null);
+            }
+            else
+                yield return new AsmLine(OpToInstr[be.Operation], $"#{leftResReg}#", $"#{rightResReg}#");
         }
 
         public IEnumerable<AsmLine> Translate(CallExpression ce)
@@ -172,12 +190,32 @@ namespace Cimple
             return new HashSet<string>();
         }
 
+        private static Dictionary<string, string> x64TOx8 = new Dictionary<string, string>
+        {
+            ["rax"] = "al",
+            ["rbx"] = "bl",
+            ["rdx"] = "dl",
+            ["rcx"] = "cl",
+            ["rsp"] = "spl",
+            ["rbp"] = "bpl",
+            ["rsi"] = "sil",
+            ["rdi"] = "dil",
+            ["r8"] = "r8b",
+            ["r9"] = "r9b",
+            ["r10"] = "r10b",
+            ["r11"] = "r11b",
+            ["r12"] = "r12b",
+            ["r13"] = "r12b",
+            ["r14"] = "r14b",
+            ["r15"] = "r15b",
+        };
+        
         public static List<AsmLine> Inline(List<AsmLine> code)
         {
             
             for (var i = 0;i<code.Count;)
             {
-                if (code[i].instr != "mov")
+                if (code[i].instr != "mov" || char.IsDigit(code[i].right[0]) && code[i].right.Length > 8)
                 {
                     i++;
                     continue;
@@ -197,6 +235,9 @@ namespace Cimple
                     
                     if (code[i].left != code[j].right)
                         continue;
+
+                    if (code[j].instr.StartsWith("set"))
+                        break;
                     
                     flag = true;
                     code[j].right = code[i].right;
@@ -207,15 +248,6 @@ namespace Cimple
                 if (!flag)
                     i++;
             }
-
-            for (var i = 0; i < code.Count;)
-            {
-                if (code[i].left == code[i].right)
-                    code.RemoveAt(i);
-                else
-                    i++;
-            }
-
             return code;
         }
         
@@ -242,7 +274,7 @@ namespace Cimple
             foreach (var r in regs)
             {
                 var first = code.FindIndex(x => x.left == r);
-                var last = code.FindLastIndex(x => x.right != null && x.right == r || x.left == $"[{r}]");
+                var last = code.FindLastIndex(x => x.right != null && (x.right == r || x.right == $"[{r}]") || x.left == r || x.left == $"[{r}]");
                 Console.WriteLine($"{r}: {first} -> {last}");
                 var replacedSuccessfully = false;
                 foreach (var reg in Regs)
@@ -261,13 +293,16 @@ namespace Cimple
                     if (cFlag)
                         continue;
                     taken[r] = (reg, first, last);
-                    Console.WriteLine($"{r}-> {reg}");
                     usedRegs.Add(reg);
+                    var newReg = reg;
+                    if (code[first].instr.StartsWith("set"))
+                        newReg = x64TOx8[reg];
+                    Console.WriteLine($"{r}-> {newReg}");
                     foreach (var instr in code)
                     {
-                        instr.left = instr.left.Replace(r, reg);
+                        instr.left = instr.left.Replace(r, newReg);
                         if (instr.right != null)
-                            instr.right = instr.right.Replace(r, reg);
+                            instr.right = instr.right.Replace(r, newReg);
                     }
                     replacedSuccessfully = true;
                     break;

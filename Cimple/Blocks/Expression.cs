@@ -38,9 +38,19 @@ namespace Cimple.Blocks
                 Context.UsedRegisters.Add(reg);
             result = translator.result;
             
+            for (var i = 0; i < code.Count;)
+            {
+                if (code[i].left == code[i].right)
+                    code.RemoveAt(i);
+                else
+                    i++;
+            }
+            
             foreach (var instr in code)
                 if (instr.instr != "call" && instr.left[0] == '[' && char.IsDigit(instr.right[0]))
+                {
                     instr.right = "DWORD " + instr.right;
+                }
 
             return code.Select(l => $"{l}");
             //return this switch

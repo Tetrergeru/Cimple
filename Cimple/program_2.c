@@ -14,11 +14,9 @@ u64 helloworld()
 {
 	u64 s2;
 	u64 s1;
-	u64 ptr;
 	(s2 = 0x0021646c726f);
 	(s1 = 0x77202c6f6c6c6548);
-	(ptr = (&s1));
-	printf(ptr);
+	printf((&s1));
 	return 0;
 }
 
@@ -30,8 +28,7 @@ u64 replace(u64 address, u64 value)
 u64 main()
 {
 	u64 x;
-	u64 ptr;
-	(ptr = (&x));
-	replace(ptr, 42);
-	printd(x);
+	helloworld();
+	replace((&x), 42);
+	printd(mul());
 }

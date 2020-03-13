@@ -44,9 +44,12 @@ namespace Cimple.Blocks
             var cStart = Context.NextLabel();
             var cEnd = Context.NextLabel();
             yield return $".l{cStart}:";
+            
             foreach (var e in Condition.Translate())
                 yield return e;
-            yield return $"{Conditions[((BinExpression)Condition).Operation]} .l{cEnd}";
+            
+            yield return $"cmp {Condition.result}, 0";
+            yield return $"je .l{cEnd}";
             
             foreach (var op in Code.SelectMany(op => op.Translate()))
                 yield return op;

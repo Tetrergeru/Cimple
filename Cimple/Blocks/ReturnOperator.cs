@@ -31,7 +31,8 @@ namespace Cimple.Blocks
                 yield return op;
             if (Value.result != "rax")
                 yield return $"mov rax, {Value.result}";
-            yield return "jmp .return";
+            if (Context.Operations[^1] != this)
+                yield return "jmp .return";
         }
     }
 }

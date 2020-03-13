@@ -90,7 +90,7 @@ namespace Cimple
 
         public static void Main()
         {
-            var programName = "program_3";
+            var programName = "program_4";
             
             var s = new StateMachine(new Parser(words).Parse);
             var g = ReadGrammar("grammar.txt");
@@ -112,9 +112,9 @@ namespace Cimple
             File.WriteAllLines($"{programName}.asm", p.Translate());
             
             System.Diagnostics.Process.Start("CMD.exe",$"/C nasm -f win64 {programName}.asm");
-            Thread.Sleep(100);
+            Thread.Sleep(1000);
             System.Diagnostics.Process.Start("CMD.exe",$"/C golink /console {programName}.obj kernel32.dll MSVCRT.dll");
-            Thread.Sleep(100);
+            Thread.Sleep(1000);
             System.Diagnostics.Process.Start("CMD.exe",$"/C {programName}");
 
             //Console.WriteLine(string.Join("\n",));
