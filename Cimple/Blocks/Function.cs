@@ -21,6 +21,8 @@ namespace Cimple.Blocks
 
         public readonly HashSet<string> UsedRegisters = new HashSet<string>();
         
+        public readonly List<string> Arrays = new List<string>();
+        
         public Function(Program context, Dictionary<string, object> contents)
         {
             Context = context;
@@ -87,6 +89,8 @@ namespace Cimple.Blocks
         
         public IEnumerable<string> Translate()
         {
+            Console.WriteLine($"{Name}:");
+            Console.WriteLine(string.Join(", ", Arrays));
             //label
             yield return $"{Name}:";
             //push arguments to stack

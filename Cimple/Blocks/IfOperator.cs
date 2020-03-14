@@ -42,7 +42,7 @@ namespace Cimple.Blocks
             foreach (var e in Condition.Translate())
                 yield return e;
             
-            yield return $"cmp {Condition.result}, 0";
+            yield return $"cmp {Condition.Result}, 0";
             yield return $"je .l{cElse}";
             
             foreach (var op in CodeIf.SelectMany(op => op.Translate()))

@@ -29,8 +29,8 @@ namespace Cimple.Blocks
         {
             foreach (var op in Value.Translate())
                 yield return op;
-            if (Value.result != "rax")
-                yield return $"mov rax, {Value.result}";
+            if (Value.Result != "rax")
+                yield return $"mov rax, {Value.Result}";
             if (Context.Operations[^1] != this)
                 yield return "jmp .return";
         }

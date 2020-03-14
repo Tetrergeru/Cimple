@@ -6,7 +6,7 @@ namespace Cimple.Blocks
 {
     public class Expression : Operation
     {
-        public string result;
+        public string Result;
         
         public Expression(Function context) : base(context)
         {
@@ -36,11 +36,11 @@ namespace Cimple.Blocks
             code = translator.PutRegiters(code);
             foreach (var reg in translator.usedRegs)
                 Context.UsedRegisters.Add(reg);
-            result = translator.result;
+            Result = translator.result;
             
             for (var i = 0; i < code.Count;)
             {
-                if (code[i].left == code[i].right)
+                if (code[i].left == code[i].right && code[i].instr == "mov")
                     code.RemoveAt(i);
                 else
                     i++;

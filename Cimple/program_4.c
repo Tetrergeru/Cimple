@@ -1,4 +1,4 @@
-u64 mul(u64 x, u64 y)
+u64 mul_v(u64 x, u64 y)
 {
 	u64 result;
 	(result = 0);
@@ -10,17 +10,29 @@ u64 mul(u64 x, u64 y)
 	return result;
 }
 
-u64 main()
+u64 mul_r(u64 x, u64 y)
 {
-	u64 x;
-	(x = 0);
-	(x = ((2 == 3) != (3 == 2)));
-	if (x)
+	if ((y == 0))
 	{
-		printd(100);
+		return 0;
 	}
 	else
 	{
-		printd(42);
+		return (x + mul_r(x, (y - 1)));
 	}
+}
+
+u64 main()
+{
+	//u64 x;
+	//(x = 0xffff);
+	//(x = (2 == 2));
+	//if (x)
+	//{
+		printd(mul_r(10,5));
+	//}
+	//else
+	//{
+	//	printd(42);
+	//}
 }

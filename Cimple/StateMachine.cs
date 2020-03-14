@@ -17,7 +17,7 @@ namespace Cimple
 
         public IEnumerable<Token> ParseFile(string program, string fname = "")
             => program
-                .Split("\n")
+                .Split("\n").Where(l => !l.TrimStart().StartsWith("//"))
                 .SelectMany((line, lineNumber) => ParseLine(line, fname, lineNumber));
 
         public IEnumerable<Token> ParseLine(string line, string fname, int lineNumber)

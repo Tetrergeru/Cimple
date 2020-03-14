@@ -29,6 +29,16 @@ namespace Cimple.Blocks
                     var c = (Dictionary<string, object>)o["<declaration-operator>_0"];
                     Context.Variables.Add(( ((Token)c["Name_0"]).Text, int.Parse(((Token)c["Type_0"]).Text.Substring(1)) ));
                 }
+                else if (o.ContainsKey("<array-declaration-operator>_0"))
+                {
+                    var c = (Dictionary<string, object>)o["<array-declaration-operator>_0"];
+                    var variable = ( ((Token)c["Name_0"]).Text, int.Parse(((Token)c["Type_0"]).Text.Substring(1)) );
+                    var size = int.Parse(((Token) c["Const_0"]).Text);
+                    for(var i = 1;i < size;i++)
+                        Context.Variables.Add(("_", variable.Item2));
+                    Context.Variables.Add(variable);
+                    Context.Arrays.Add(variable.Item1);
+                }
                 else if (o.ContainsKey("<conditional-operator>_0"))
                     result.Add(new IfOperator(Context, (Dictionary<string, object>)o["<conditional-operator>_0"]));
                 else if (o.ContainsKey("<while-cycle>_0"))

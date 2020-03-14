@@ -46,6 +46,7 @@ namespace Cimple
         private static Dictionary<string, string> OpToInstr = new Dictionary<string, string>
         {
             ["="] = "mov",
+            ["|"] = "or",
             ["+"] = "add",
             ["+="] = "add",
             ["-"] = "sub",
@@ -105,7 +106,7 @@ namespace Cimple
 
         public IEnumerable<AsmLine> Translate(CallExpression ce)
         {
-            if (ce.Function == "printf" || ce.Function == "printd")
+            if (ce.Function == "printf" || ce.Function == "printd" || ce.Function == "VirtualAlloc")
             {
                 yield return new AsmLine("sub","rsp", "40");
                 ce.Context.Push(40);
@@ -122,7 +123,7 @@ namespace Cimple
                 yield return new AsmLine("mov", $"{RegParams[i]}", $"#{opRegs[i]}#");
             var fun = ce.Function == "printd" ? "printf" : ce.Function;
             yield return new AsmLine("call", fun, null);
-            if (ce.Function == "printf" || ce.Function == "printd")
+            if (ce.Function == "printf" || ce.Function == "printd" || ce.Function == "VirtualAlloc")
             {
                 yield return new AsmLine("add","rsp", "40");
                 ce.Context.Pop(40);
@@ -175,7 +176,13 @@ namespace Cimple
                 }
                 case VarExpression varE:
                 {
-                    yield return new AsmLine("mov", NewReg(), $"{varE}");
+                    if (varE.Context.Arrays.Contains(varE.Variable))
+                    {
+                        yield return new AsmLine("mov", NewReg(), $"rsp");
+                        yield return new AsmLine("add", $"#{_regUsed}#", $"{varE.Context.GetOffset(varE.Variable)}");
+                    }
+                    else
+                        yield return new AsmLine("mov", NewReg(), $"{varE}");
                     break;
                 }
             }
@@ -184,7 +191,7 @@ namespace Cimple
         public static HashSet<string> Spoils(AsmLine instr)
         {
             if (instr.instr == "call")
-                return new HashSet<string>{"rcx","rdx", "r8", "r9", "rax"};
+                return new HashSet<string>{"rcx","rdx", "r8", "r9", "rax", "r10", "r11"};
             if (instr.left[0] != '[')
                 return new HashSet<string>{instr.left};
             return new HashSet<string>();
@@ -240,6 +247,7 @@ namespace Cimple
                         break;
                     
                     flag = true;
+                    Console.WriteLine($"{code[i]} |-> {code[j]}");
                     code[j].right = code[i].right;
                     code.RemoveAt(i);
                     break;
@@ -253,7 +261,7 @@ namespace Cimple
         
         public static List<string> Regs = new List<string>
         {
-            "rax", "r10", "r11", "rcx", "rdx", "r8", "r9", "r12", "r13", "rbx", "r12", "r13", "r14", "r15"
+            "r10", "r11", "rcx", "rdx", "r8", "r9", "r12", "r13", "rbx", "r12", "r13", "r14", "r15"
         };
 
         public HashSet<string> usedRegs = new HashSet<string>();
@@ -300,9 +308,12 @@ namespace Cimple
                     Console.WriteLine($"{r}-> {newReg}");
                     foreach (var instr in code)
                     {
-                        instr.left = instr.left.Replace(r, newReg);
+                        instr.left = instr.instr.StartsWith("set") 
+                            ? instr.left.Replace(r, newReg) 
+                            : instr.left.Replace(r, reg);
+                        
                         if (instr.right != null)
-                            instr.right = instr.right.Replace(r, newReg);
+                            instr.right = instr.right.Replace(r, reg);
                     }
                     replacedSuccessfully = true;
                     break;

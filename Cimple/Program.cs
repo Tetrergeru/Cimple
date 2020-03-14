@@ -90,7 +90,7 @@ namespace Cimple
 
         public static void Main()
         {
-            var programName = "program_4";
+            var programName = "program_5";
             
             var s = new StateMachine(new Parser(words).Parse);
             var g = ReadGrammar("grammar.txt");

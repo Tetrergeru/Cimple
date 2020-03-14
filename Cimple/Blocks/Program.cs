@@ -40,6 +40,7 @@ namespace Cimple.Blocks
         public IEnumerable<string> Translate()
         {
             yield return "extern ExitProcess";
+            yield return "extern VirtualAlloc";
             yield return "extern printf";
             yield return "";
             yield return "section .text";

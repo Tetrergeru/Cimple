@@ -14,11 +14,14 @@
 
 <operator> -> <conditional-operator> 
             | <declaration-operator> 
+			| <array-declaration-operator>
 			| <while-cycle>
 			| <return-operator>
 			| <expression> ; ;;
 
 <conditional-operator> -> if ( <expression> ) <code-block> else <code-block> ;;
+
+<array-declaration-operator> -> <Type> <Name> [ <Const> ] ; ;;
 
 <declaration-operator> -> <Type> <Name> ; ;;
 
