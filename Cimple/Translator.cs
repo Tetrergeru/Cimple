@@ -47,6 +47,10 @@ namespace Cimple
         {
             ["="] = "mov",
             ["|"] = "or",
+            ["&"] = "and",
+            [">>"] = "shr",
+            ["<<"] = "shl",
+            ["^"] = "xor",
             ["+"] = "add",
             ["+="] = "add",
             ["-"] = "sub",
@@ -106,7 +110,7 @@ namespace Cimple
 
         public IEnumerable<AsmLine> Translate(CallExpression ce)
         {
-            if (ce.Function == "printf" || ce.Function == "printd" || ce.Function == "VirtualAlloc")
+            if (Blocks.Program.LibFunc.Contains(ce.Function) || ce.Function == "printd")
             {
                 yield return new AsmLine("sub","rsp", "40");
                 ce.Context.Push(40);
@@ -119,16 +123,26 @@ namespace Cimple
                     yield return ex;
                 opRegs.Add(_regUsed);
             }
-            for(var i = 0;i<opRegs.Count;i++)
+
+            for (var i = 0; i < opRegs.Count; i++)
                 yield return new AsmLine("mov", $"{RegParams[i]}", $"#{opRegs[i]}#");
+
+            if (ce.Function == "socket")
+            {
+                for (var i = opRegs.Count - 1; i >= 0; i--)
+                    yield return new AsmLine("push", $"{RegParams[i]}", null);
+            }
+
             var fun = ce.Function == "printd" ? "printf" : ce.Function;
             yield return new AsmLine("call", fun, null);
-            if (ce.Function == "printf" || ce.Function == "printd" || ce.Function == "VirtualAlloc")
+            if (Blocks.Program.LibFunc.Contains(ce.Function) || ce.Function == "printd")
             {
                 yield return new AsmLine("add","rsp", "40");
                 ce.Context.Pop(40);
             }
             yield return new AsmLine("mov",NewReg(), "rax");
+            if (ce.Function == "socket")
+                yield return new AsmLine("add", "rsp", "24");
         }
 
         public IEnumerable<AsmLine> Translate(Expression expr)
@@ -157,6 +171,9 @@ namespace Cimple
                             yield return new AsmLine("mov", NewReg(), regcode);
                             break;
                         }
+                        case "~":
+                            yield return new AsmLine("not", $"#{_regUsed}#", null);
+                            break;
                         default:
                             throw new Exception($"Wrong usage of {ue.Operation}");
                     }
@@ -243,7 +260,7 @@ namespace Cimple
                     if (code[i].left != code[j].right)
                         continue;
 
-                    if (code[j].instr.StartsWith("set"))
+                    if (code[j].right == null)
                         break;
                     
                     flag = true;

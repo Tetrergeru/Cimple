@@ -30,6 +30,9 @@
       <None Update="program_5.c">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="tcp_server.c">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

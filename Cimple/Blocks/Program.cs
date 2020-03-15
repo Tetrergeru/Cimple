@@ -32,6 +32,11 @@ namespace Cimple.Blocks
             }
         }
 
+        public static HashSet<string> LibFunc = new HashSet<string>
+        {
+            "ExitProcess", //"printf", "VirtualAlloc", "VirtualFree",, "scanf"
+        };
+
         public override string ToString()
         {
             return string.Join("\n", _funcs.Values);
@@ -39,9 +44,8 @@ namespace Cimple.Blocks
 
         public IEnumerable<string> Translate()
         {
-            yield return "extern ExitProcess";
-            yield return "extern VirtualAlloc";
-            yield return "extern printf";
+            foreach(var fn in LibFunc)
+                yield return $"extern {fn}";
             yield return "";
             yield return "section .text";
             yield return "global Start";
