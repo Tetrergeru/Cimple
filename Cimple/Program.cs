@@ -102,6 +102,12 @@ namespace Cimple
             
             var s = new StateMachine(new Parser(words).Parse);
             var g = ReadGrammar("grammar.txt");
+            if (!File.Exists(programName))
+            {
+                Console.WriteLine($"Файл {programName} не найден");
+                return;
+            }
+
             var program = s.ParseFile(File.ReadAllText(programName), programName);
             var parsed = g.Parse(program);
 
