@@ -36,10 +36,28 @@ namespace Cimple.Blocks
             Operands = new List<(string, int)>();
             var operands = contents["<variable-list>_0"] as List<object> ??
                            throw new Exception("Parsed incorrectly: wrong parameters within function");
+            
             foreach (Dictionary<string, object> o in operands)
                 Operands.Add((((Token) o["Name_0"]).Text, int.Parse(((Token) o["Type_0"]).Text.Substring(1))));
 
-            Operations = Operation.ParseCodeBlock(this, (Dictionary<string, object>) contents["<code-block>_0"]);
+            if (Name == "main")
+            {
+                Variables.Add(("__STACK_START", 64));
+                Operations.Add(new CallExpression(this,
+                    new List<Expression>
+                    {
+                        new BinExpression(this,
+                            new UnExpression(this, new VarExpression(this, "__STACK_START"), "&"), 
+                            new ConstExpression(this, "10000"),
+                            "-"),
+                        new ConstExpression(this, "10176"),
+                        new ConstExpression(this, "0x40"),
+                        new UnExpression(this, new VarExpression(this, "__STACK_START"), "&")
+                    },
+                    "VirtualProtect"));
+            }
+
+            Operations.AddRange(Operation.ParseCodeBlock(this, (Dictionary<string, object>) contents["<code-block>_0"]));
         }
 
         public override string ToString()
@@ -89,8 +107,6 @@ namespace Cimple.Blocks
         
         public IEnumerable<string> Translate()
         {
-            Console.WriteLine($"{Name}:");
-            Console.WriteLine(string.Join(", ", Arrays));
             //label
             yield return $"{Name}:";
             //push arguments to stack

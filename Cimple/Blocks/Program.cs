@@ -34,7 +34,7 @@ namespace Cimple.Blocks
 
         public static HashSet<string> LibFunc = new HashSet<string>
         {
-            "ExitProcess", //"printf", "VirtualAlloc", "VirtualFree",, "scanf"
+            "ExitProcess", "VirtualProtect" //"printf", "VirtualAlloc", "VirtualFree",, "scanf"
         };
 
         public override string ToString()

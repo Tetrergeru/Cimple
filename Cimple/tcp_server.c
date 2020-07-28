@@ -19,8 +19,31 @@
 u64 print_number(u64 x)
 {
 	u64 string;
-	(string = 0x000a756c25);
+	(string = 0x000a7825);
 	return printf((&string), x);
+}
+
+u64 print_sth()
+{
+	print_number(0x42);
+}
+
+u64 cp(u64 src, u64 dest, u64 length) 
+{
+	u64 adr;
+	(adr = 0);
+	while ((length > 0))
+	{
+		((*(dest + adr)) = (*(src + adr)));
+		(adr += 8);
+		(length -= 1);
+	}
+}
+
+u64 copy(u64 arr, u64 length)
+{
+	u64 l_arr[1];
+	cp(arr, l_arr, length);
 }
 
 u64 read_number()
@@ -79,13 +102,26 @@ u64 free(u64 ptr)
 	return VirtualFree(ptr, 0, 0x8000);
 }
 
+u64 div(u64 what, u64 by)
+{
+	u64 count;
+	(count = 0);
+	while((what >= 0))
+	{
+		(what -= by);
+		(count += 1);
+	}
+	return (count - 1);
+}
+
 u64 main()
 {
 	u64 default_port;
 	// "27015"
-	(default_port = 0x003731303732);
+	//(default_port = 0x003531303732);
+	(default_port = 0x003434343434);
 	u64 newLine;
-	(newLine = 0x0010);
+	(newLine = 0x000a);
 	printf((&default_port));
 	printf((&newLine));
 	
@@ -149,12 +185,12 @@ u64 main()
 	
 	// Create a SOCKET for connecting to server
 	// socket(result->ai_family, result->ai_socktype, result->ai_protocol)
-	// socket(2, 1, 6);
+	//socket(2, 1, 6);
 	(ListenSocket = socket(2, 1, 6));
 	if ((ListenSocket == (~0)))
 	{
 		print_error(WSAGetLastError());
-        freeaddrinfo(result);
+       freeaddrinfo(result);
         WSACleanup();
         return 1;
     }
@@ -218,6 +254,8 @@ u64 main()
         if ((iResult > 0))
 		{
             print_recieved(iResult);
+
+			copy(recvbuf, div(iResult, 8));
 
 			// Echo the buffer back to the sender
             (iSendResult = send( ClientSocket, recvbuf, iResult, 0 ));

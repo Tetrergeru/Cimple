@@ -28,13 +28,8 @@ namespace Cimple
                 .Where(kv => kv.Key.EndsWith("-list>"))
                 .Select(kv => kv.Key)
                 .ToList();
-            
-            //_lists = new List<string>{"<program-list>"};
-            
-            Console.WriteLine(string.Join(", ", _lists));
         }
 
-        // TODO: Rewrite, it probably doesn't work
         private void UnwrapLists(Dictionary<string, object> program)
         {
             foreach (var l in _lists)
@@ -63,7 +58,6 @@ namespace Cimple
 
         private (string, object, int) Match(List<Token> tokens, int start, string rool)
         {
-            //Console.WriteLine(rool);
             if (rool.Length > 2 && rool[0] == '<' && rool.Last() == '>')
             {
                 var text = rool.Substring(1, rool.Length - 2);

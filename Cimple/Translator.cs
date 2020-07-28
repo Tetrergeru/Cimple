@@ -127,12 +127,6 @@ namespace Cimple
             for (var i = 0; i < opRegs.Count; i++)
                 yield return new AsmLine("mov", $"{RegParams[i]}", $"#{opRegs[i]}#");
 
-            if (ce.Function == "socket")
-            {
-                for (var i = opRegs.Count - 1; i >= 0; i--)
-                    yield return new AsmLine("push", $"{RegParams[i]}", null);
-            }
-
             var fun = ce.Function == "printd" ? "printf" : ce.Function;
             yield return new AsmLine("call", fun, null);
             if (Blocks.Program.LibFunc.Contains(ce.Function) || ce.Function == "printd")
@@ -141,8 +135,6 @@ namespace Cimple
                 ce.Context.Pop(40);
             }
             yield return new AsmLine("mov",NewReg(), "rax");
-            if (ce.Function == "socket")
-                yield return new AsmLine("add", "rsp", "24");
         }
 
         public IEnumerable<AsmLine> Translate(Expression expr)
@@ -264,7 +256,7 @@ namespace Cimple
                         break;
                     
                     flag = true;
-                    Console.WriteLine($"{code[i]} |-> {code[j]}");
+                    //Console.WriteLine($"{code[i]} |-> {code[j]}");
                     code[j].right = code[i].right;
                     code.RemoveAt(i);
                     break;
@@ -300,7 +292,7 @@ namespace Cimple
             {
                 var first = code.FindIndex(x => x.left == r);
                 var last = code.FindLastIndex(x => x.right != null && (x.right == r || x.right == $"[{r}]") || x.left == r || x.left == $"[{r}]");
-                Console.WriteLine($"{r}: {first} -> {last}");
+                //Console.WriteLine($"{r}: {first} -> {last}");
                 var replacedSuccessfully = false;
                 foreach (var reg in Regs)
                 {
@@ -322,7 +314,7 @@ namespace Cimple
                     var newReg = reg;
                     if (code[first].instr.StartsWith("set"))
                         newReg = x64TOx8[reg];
-                    Console.WriteLine($"{r}-> {newReg}");
+                    //Console.WriteLine($"{r}-> {newReg}");
                     foreach (var instr in code)
                     {
                         instr.left = instr.instr.StartsWith("set") 

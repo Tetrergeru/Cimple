@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using Cimple.Blocks;
 
 namespace Cimple
 {
@@ -88,37 +85,34 @@ namespace Cimple
             return new Grammar(gr, rs.First()[0]);
         }
 
-        public static void Main()
+        public static void Main(string[] args)
         {
-            var programName = "tcp_server";
+            if (args.Length < 1 || args[0] == "--help" || args[0] == "-h")
+            {
+                Console.WriteLine(
+                    "Use me like this:" 
+                    + "Cimple <in>"
+                    + ""
+                    + "to compile file <in> into an executable");
+                return;
+            }
+
+            var programName = args[0];
+            var programNameBase = programName.Replace(".c", "");
             
             var s = new StateMachine(new Parser(words).Parse);
             var g = ReadGrammar("grammar.txt");
-            
-            var program = s.ParseFile(File.ReadAllText($"{programName}.c"), "main.c");
-            
-            //Console.WriteLine(string.Join(", ", program.Select(s => s.Text)));
-            
+            var program = s.ParseFile(File.ReadAllText(programName), programName);
             var parsed = g.Parse(program);
-            
-            //Println(parsed);
 
-            Action<IEnumerable<AsmLine>> print = ie =>
-                Console.WriteLine(string.Join("\n", ie.Select((ai, i) => $"{i})\t{ai.instr}\t{ai.left}\t{ai.right}")));
-            
             var p = new Blocks.Program(parsed);
-
-
-            File.WriteAllLines($"{programName}.asm", p.Translate());
             
-            System.Diagnostics.Process.Start("CMD.exe",$"/C nasm -f win64 {programName}.asm");
-            Thread.Sleep(1200);
-            System.Diagnostics.Process.Start("CMD.exe",$"/C golink /console {programName}.obj kernel32.dll MSVCRT.dll Ws2_32.dll");
-            //Thread.Sleep(1000);
-            //System.Diagnostics.Process.Start("CMD.exe",$"/C {programName}");
-
-            //Console.WriteLine(string.Join("\n",));
-            //Console.WriteLine(p);
+            File.WriteAllLines($"{programNameBase}.asm", p.Translate());
+            var prc = System.Diagnostics.Process.Start("CMD.exe",$"/C nasm -f win64 {programNameBase}.asm");
+            prc.WaitForExit();
+            
+            prc = System.Diagnostics.Process.Start("CMD.exe",$"/C golink /console {programNameBase}.obj kernel32.dll MSVCRT.dll Ws2_32.dll");
+            prc.WaitForExit();
         }
     }
 }
